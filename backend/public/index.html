@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Studio | Custom Websites & Node.js Solutions</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <span class="badge">Full-Stack JavaScript Development</span>
+      <h1>Fast Websites, Custom APIs & Web Apps Built to Launch</h1>
+      <p>From responsive landing pages to custom Node.js backends—tell us what you need and get a clear project plan within 24 hours.</p>
+      <a href="#request-form" class="btn-primary">Request a Project Quote</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="services">
+      <div class="card">
+        <h3>Landing Pages & Websites</h3>
+        <p>Clean, mobile-responsive websites designed for speed, clarity, and lead capture.</p>
+      </div>
+      <div class="card">
+        <h3>Node.js APIs & Integrations</h3>
+        <p>Reliable REST endpoints, custom form handlers, webhooks, and third-party API setups.</p>
+      </div>
+      <div class="card">
+        <h3>Full-Stack Mini Web Apps</h3>
+        <p>End-to-end booking portals, internal trackers, and lightweight business tools.</p>
+      </div>
+    </section>
+
+    <section id="request-form" class="form-section">
+      <h2>Start Your Project Inquiry</h2>
+      <p class="subtitle">Fill in the details below to generate an instant reference ID.</p>
+
+      <form id="inquiryForm">
+        <div class="form-group">
+          <label for="name">Your Name *</label>
+          <input type="text" id="name" placeholder="e.g. Alex Carter" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" placeholder="alex@company.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="service">Service Needed *</label>
+          <select id="service" required>
+            <option value="">-- Select a service --</option>
+            <option value="Frontend Website / Landing Page">Frontend Website / Landing Page</option>
+            <option value="Node.js Backend / REST API">Node.js Backend / REST API</option>
+            <option value="Full-Stack Mini Web App">Full-Stack Mini Web App</option>
+            <option value="Bug Fix / Deployment Setup">Bug Fix / Deployment Setup</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="details">Project Brief & Timeline</label>
+          <textarea id="details" rows="4" placeholder="Describe your goals, key features, or target launch date..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Project Request</button>
+        <p id="statusMessage" class="status-msg" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Full-Stack Web Studio. Deployed on Render.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

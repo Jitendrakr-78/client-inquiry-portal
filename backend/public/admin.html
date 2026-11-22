@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Client Inquiry Portal</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+    }
+
+    .header a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .auth-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .auth-bar input {
+      flex: 1;
+      min-width: 220px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    button.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .toast {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      min-height: 20px;
+    }
+
+    .toast.success { color: var(--success); }
+    .toast.error { color: var(--danger); }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      background: #f1f5f9;
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .status-Pending { background: #fef3c7; color: #92400e; }
+    .status-In-Progress { background: #dbeafe; color: #1e40af; }
+    .status-Completed { background: #dcfce7; color: #166534; }
+    .status-Rejected { background: #fee2e2; color: #991b1b; }
+
+    select.status-select {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Client Inquiry Admin Dashboard</h1>
+      <a href="/">← Back to Inquiry Form</a>
+    </div>
+
+    <div class="card">
+      <div class="auth-bar">
+        <input type="password" id="adminKeyInput" placeholder="Enter Admin Key (e.g., demo123)" />
+        <button id="loadBtn" type="button">Load Inquiries</button>
+        <button id="clearBtn" type="button" class="secondary">Clear Key</button>
+      </div>
+      <div id="toast" class="toast"></div>
+    </div>
+
+    <div class="card" id="dashboardCard" style="display: none;">
+      <div class="controls">
+        <div class="filters" id="filterBar">
+          <button type="button" class="filter-btn active" data-filter="All">All</button>
+          <button type="button" class="filter-btn" data-filter="Pending">Pending</button>
+          <button type="button" class="filter-btn" data-filter="In Progress">In Progress</button>
+          <button type="button" class="filter-btn" data-filter="Completed">Completed</button>
+          <button type="button" class="filter-btn" data-filter="Rejected">Rejected</button>
+        </div>
+        <div class="muted" id="countText">0 inquiries</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref ID</th>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Details</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="inquiriesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const adminKeyInput = document.getElementById("adminKeyInput");
+    const loadBtn = document.getElementById("loadBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const toast = document.getElementById("toast");
+    const dashboardCard = document.getElementById("dashboardCard");
+    const inquiriesBody = document.getElementById("inquiriesBody");
+    const countText = document.getElementById("countText");
+    const filterBar = document.getElementById("filterBar");
+
+    let allInquiries = [];
+    let currentFilter = "All";
+
+    function showToast(message, type) {
+      toast.textContent = message;
+      toast.className = "toast " + (type || "success");
+    }
+
+    function escapeHtml(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, "");
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? dateStr : d.toLocaleString();
+    }
+
+    function getStatusClass(status) {
+      return "status-" + String(status || "Pending").replace(/\s+/g, "-");
+    }
+
+    async function fetchInquiries() {
+      const key = adminKeyInput.value.trim();
+      if (!key) {
+        showToast("Please enter your admin key.", "error");
+        return;
+      }
+
+      showToast("Loading inquiries...", "success");
+
+      try {
+        const res = await fetch("/api/inquiries?key=" + encodeURIComponent(key));
+        const data = await res.json();
+
+        if (!res.ok) {
+          dashboardCard.style.display = "none";
+          showToast(data.error || "Unauthorized or failed to fetch.", "error");
+          return;
+        }
+
+        sessionStorage.setItem("portal_admin_key", key);
+        allInquiries = Array.isArray(data) ? data : [];
+        dashboardCard.style.display = "block";
+        showToast("Loaded " + allInquiries.length + " inquiries.", "success");
+        renderTable();
+      } catch (err) {
+        showToast("Network error while loading inquiries.", "error");
+      }
+    }
+
+    async function updateStatus(id, newStatus, selectEl) {
+      const key = sessionStorage.getItem("portal_admin_key") || adminKeyInput.value.trim();
+      selectEl.disabled = true;
+
+      try {
+        const url = "/api/inquiries/" + encodeURIComponent(id) + "/status?key=" + encodeURIComponent(key);
+        const res = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showToast(data.error || "Failed to update status.", "error");
+          renderTable();
+          return;
+        }
+
+        const idx = allInquiries.findIndex(function (item) {
+          return item.id === id;
+        });
+        if (idx !== -1) {
+          allInquiries[idx].status = newStatus;
+          allInquiries[idx].updated_at = (data.inquiry && data.inquiry.updated_at) || new Date().toISOString();
+        }
+
+        showToast("Updated " + id + " to " + newStatus + ".", "success");
+        renderTable();
+      } catch (err) {
+        showToast("Network error while updating status.", "error");
+        renderTable();
+      }
+    }
+
+    function renderTable() {
+      const filtered = currentFilter === "All"
+        ? allInquiries
+        : allInquiries.filter(function (item) {
+            return item.status === currentFilter;
+          });
+
+      countText.textContent = "Showing " + filtered.length + " of " + allInquiries.length + " inquiries";
+
+      if (filtered.length === 0) {
+        inquiriesBody.innerHTML = '<tr><td colspan="7" class="empty-state">No inquiries found for this filter.</td></tr>';
+        return;
+      }
+
+      const statuses = ["Pending", "In Progress", "Completed", "Rejected"];
+
+      inquiriesBody.innerHTML = filtered.map(function (item) {
+        const options = statuses.map(function (st) {
+          const selected = item.status === st ? " selected" : "";
+          return '<option value="' + st + '"' + selected + ">" + st + "</option>";
+        }).join("");
+
+        return (
+          "<tr>" +
+            "<td><strong>" + escapeHtml(item.id) + "</strong></td>" +
+            "<td>" +
+              "<div>" + escapeHtml(item.name) + "</div>" +
+              '<div class="muted">' + escapeHtml(item.email) + "</div>" +
+            "</td>" +
+            "<td>" + escapeHtml(item.service) + "</td>" +
+            "<td>" + escapeHtml(item.details) + "</td>" +
+            '<td class="muted">' + escapeHtml(formatDate(item.created_at)) + "</td>" +
+            '<td><span class="badge ' + getStatusClass(item.status) + '">' + escapeHtml(item.status) + "</span></td>" +
+            '<td><select class="status-select" data-id="' + escapeHtml(item.id) + '">' + options + "</select></td>" +
+          "</tr>"
+        );
+      }).join("");
+
+      document.querySelectorAll(".status-select").forEach(function (selectEl) {
+        selectEl.addEventListener("change", function (e) {
+          const id = e.target.getAttribute("data-id");
+          updateStatus(id, e.target.value, e.target);
+        });
+      });
+    }
+
+    loadBtn.addEventListener("click", fetchInquiries);
+
+    adminKeyInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") fetchInquiries();
+    });
+
+    clearBtn.addEventListener("click", function () {
+      sessionStorage.removeItem("portal_admin_key");
+      adminKeyInput.value = "";
+      allInquiries = [];
+      dashboardCard.style.display = "none";
+      showToast("Admin key cleared.", "success");
+    });
+
+    filterBar.addEventListener("click", function (e) {
+      if (!e.target.classList.contains("filter-btn")) return;
+      document.querySelectorAll(".filter-btn").forEach(function (btn) {
+        btn.classList.remove("active");
+      });
+      e.target.classList.add("active");
+      currentFilter = e.target.getAttribute("data-filter");
+      renderTable();
+    });
+
+    const savedKey = sessionStorage.getItem("portal_admin_key");
+    if (savedKey) {
+      adminKeyInput.value = savedKey;
+      fetchInquiries();
+    }
+  </script>
+</body>
+</html>
